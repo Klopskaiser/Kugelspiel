@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ball Sort Puzzle</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+    <h1>Mamas Puzzle</h1>
+    <div id="difficulty-container">
+        <button data-difficulty="easy" class="active">Einfach</button>
+        <button data-difficulty="medium">Mittel</button>
+        <button data-difficulty="hard">Schwer</button>
+    </div>
+    <div id="extreme-mode-container">
+        <label for="extreme-toggle">Extrem-Modus</label>
+        <input type="checkbox" id="extreme-toggle">
+    </div>
+    <div id="game-board"></div>
+    <button id="restart-button">Neustart</button>
+    <div id="win-overlay">
+        <div class="win-box">
+            <h1>Herzlichen Glückwunsch!</h1>
+            <p id="moves-display"></p>
+            <p>Du hast das Rätsel gelöst!</p>
+            <button id="play-again-button">Nochmal spielen</button>
+        </div>
+    </div>
+    <div id="deadlock-overlay">
+        <div class="win-box">
+            <h1>Sackgasse!</h1>
+            <p>Es sind keine gültigen Züge mehr möglich.</p>
+            <button id="deadlock-restart-button">Neustart</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+body {
+    background-color: #2c2c2c; color: white; font-family: sans-serif;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding-top: 20px;
+}
+#game-board {
+    display: flex; gap: 20px; padding: 80px 30px 30px 30px;
+    background-color: #1e1e1e; border-radius: 10px; margin-top: 20px;
+}
+.tube {
+    width: 60px; height: var(--tube-height, 240px); border: 3px solid #888;
+    border-top: none; border-radius: 0 0 30px 30px; display: flex;
+    flex-direction: column-reverse; justify-content: flex-start;
+    padding: 5px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+}
+.tube:hover {
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.7); transform: translateY(-5px);
+}
+.ball {
+    width: 50px; height: 50px; border-radius: 50%;
+    margin: 5px auto 0; box-shadow: inset -5px -5px 10px rgba(0,0,0,0.3);
+    position: relative;
+}
+.ball::before {
+    content: ''; position: absolute; top: 5px; left: 10px;
+    width: 20px; height: 10px; background: rgba(255, 255, 255, 0.7);
+    border-radius: 50%; transform: rotate(-30deg);
+}
+.color-blue { background: radial-gradient(circle at 15px 15px, #63a4ff, #005cbf); }
+.color-red { background: radial-gradient(circle at 15px 15px, #ff6363, #bf0000); }
+.color-green { background: radial-gradient(circle at 15px 15px, #63ff63, #00bf00); }
+.color-yellow { background: radial-gradient(circle at 15px 15px, #ffff63, #bfbf00); }
+.color-orange { background: radial-gradient(circle at 15px 15px, #ffbe63, #bf6f00); }
+.color-pink { background: radial-gradient(circle at 15px 15px, #ff94c9, #d43789); }
+.color-purple { background: radial-gradient(circle at 15px 15px, #c563ff, #6a0dad); }
+.color-cyan { background: radial-gradient(circle at 15px 15px, #63ffff, #008b8b); }
+.color-brown { background: radial-gradient(circle at 15px 15px, #d2b48c, #8b4513); }
+.color-gray { background: radial-gradient(circle at 15px 15px, #d3d3d3, #696969); }
+
+#restart-button, #play-again-button, #deadlock-restart-button {
+    margin-top: 20px; padding: 10px 20px; font-size: 16px; cursor: pointer;
+    border-radius: 5px; border: none; background-color: #4CAF50; color: white;
+}
+#difficulty-container { margin-bottom: 20px; display: flex; gap: 10px; }
+#difficulty-container button {
+    padding: 8px 16px; font-size: 14px; cursor: pointer; border-radius: 5px;
+    border: 2px solid #888; background-color: transparent; color: #888;
+    transition: all 0.2s;
+}
+#difficulty-container button.active, #difficulty-container button:not(.active):hover {
+    background-color: #4CAF50; color: white; border-color: #4CAF50;
+}
+#difficulty-container button:not(.active):hover { background-color: #444; }
+
+#win-overlay, #deadlock-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); display: none; align-items: center;
+    justify-content: center; z-index: 2000;
+}
+#win-overlay.show, #deadlock-overlay.show { display: flex; }
+
+.win-box {
+    background: #3a3a3a; padding: 40px; border-radius: 15px; text-align: center;
+    color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: popup 0.5s ease-out;
+}
+.win-box h1 { color: #4CAF50; margin-top: 0; }
+@keyframes popup {
+    from { transform: scale(0.5); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+.floating-ball {
+    position: absolute; z-index: 1000;
+    transition: top 0.2s ease-out, left 0.2s ease-out;
+    pointer-events: none;
+}
+.ball.hidden { visibility: hidden; }
+#extreme-mode-container {
+    display: flex; align-items: center; gap: 10px;
+    margin-top: -10px; margin-bottom: 20px; color: #ccc;
+}
+#extreme-toggle { cursor: pointer; width: 18px; height: 18px; }
+.tube.solved {
+    box-shadow: 0 0 25px gold, inset 0 0 15px rgba(255, 223, 100, 0.6);
+    border-color: #FFD700; position: relative; overflow: hidden;
+}
+.tube.solved::before, .tube.solved::after {
+    content: ''; position: absolute; top: -50px; left: 50%;
+    width: 4px; height: 4px; background: transparent; z-index: 1;
+    box-shadow: -20px 50px 8px 4px #fff, 15px 90px 10px 5px #ff0, -5px 150px 12px 6px #f0f, 25px 200px 10px 5px #0ff, -25px 20px 6px 3px #f90, 10px 70px 7px 3px #f0f, -15px 120px 6px 2px #fff, 20px 180px 8px 4px #0f0, -5px 10px 4px 2px #ff0, 25px 40px 5px 2px #fff, 5px 110px 4px 1px #0ff, -20px 160px 5px 2px #f0f;
+    animation: sparkle-fall 3s infinite linear, hue-shifter 2.5s infinite linear;
+}
+.tube.solved::after { animation-delay: -1.5s; }
+@keyframes sparkle-fall {
+    from { transform: translateY(0); opacity: 1; }
+    to { transform: translateY(350px); opacity: 0; }
+}
+@keyframes hue-shifter {
+    from { filter: hue-rotate(0deg); }
+    to { filter: hue-rotate(360deg); }
+}
