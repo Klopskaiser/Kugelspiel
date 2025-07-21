@@ -7,9 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
         hard:   { balls: 6, colors: 9, tubes: 11 }
     };
     let currentDifficulty = 'easy', isExtremeMode = false, moveCount = 0;
+    let moveHistory = [], confettiInterval = null;
 
     const gameBoard = document.getElementById('game-board');
     const restartButton = document.getElementById('restart-button');
+    const undoButton = document.getElementById('undo-button');
     const difficultyContainer = document.getElementById('difficulty-container');
     const extremeToggle = document.getElementById('extreme-toggle');
     const winOverlay = document.getElementById('win-overlay');
@@ -20,12 +22,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let tubes = [], selectedTubeIndex = null, isAnimating = false;
 
-    // ... (Die setupNewGame, enforceExtremeMode, renderBoard und handleTubeClick Funktionen bleiben unverändert) ...
-
     function setupNewGame() {
+        clearInterval(confettiInterval);
         document.querySelector('.floating-ball')?.remove();
         deadlockOverlay.classList.remove('show');
+        winOverlay.classList.remove('show');
         moveCount = 0;
+        moveHistory = [];
+        undoButton.disabled = true;
         const settings = difficultySettings[currentDifficulty];
         const { balls: MAX_BALLS_PER_TUBE, colors: NUM_COLORS, tubes: NUM_TUBES } = settings;
         const COLORS = ALL_COLORS.slice(0, NUM_COLORS);
@@ -41,11 +45,10 @@ document.addEventListener('DOMContentLoaded', () => {
             let mixingMoves = [], spreadingMoves = [];
             tubes.forEach((fromTube, fromIndex) => {
                 if (fromTube.length === 0) return;
-                const ballToMove = fromTube[fromTube.length - 1];
                 tubes.forEach((toTube, toIndex) => {
                     if (fromIndex === toIndex || toTube.length >= MAX_BALLS_PER_TUBE) return;
                     if (toTube.length === 0) spreadingMoves.push([fromIndex, toIndex]);
-                    else if (toTube[toTube.length - 1] !== ballToMove) mixingMoves.push([fromIndex, toIndex]);
+                    else if (toTube[toTube.length - 1] !== fromTube[fromTube.length - 1]) mixingMoves.push([fromIndex, toIndex]);
                 });
             });
             let chosenMoveList = mixingMoves.length > 0 ? mixingMoves : spreadingMoves;
@@ -79,7 +82,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         selectedTubeIndex = null;
         isAnimating = false;
-        winOverlay.classList.remove('show');
         renderBoard();
     }
     
@@ -175,6 +177,8 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             floatingBall.style.top = `${targetTop}px`;
             floatingBall.addEventListener('transitionend', () => {
+                moveHistory.push({ from: fromIndex, to: toIndex });
+                undoButton.disabled = false;
                 moveCount++;
                 const ball = tubes[fromIndex].pop();
                 tubes[toIndex].push(ball);
@@ -182,17 +186,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 isAnimating = false;
                 renderBoard();
                 
-                // =======================================================
-                // HIER IST DIE LOGIK-ÄNDERUNG
-                // =======================================================
                 const gameWasWon = checkWinCondition();
-                
-                // Prüfe auf Sackgasse NUR, wenn das Spiel nicht gerade gewonnen wurde.
                 if (!gameWasWon && !areMovesPossible()) {
+                    undoButton.disabled = true;
                     deadlockOverlay.classList.add('show');
                 }
-                // =======================================================
-
             }, { once: true });
         }, 150);
     }
@@ -212,28 +210,41 @@ document.addEventListener('DOMContentLoaded', () => {
         return false;
     }
 
-    // =======================================================
-    // AUCH HIER IST DIE LOGIK-ÄNDERUNG
-    // =======================================================
     function checkWinCondition() {
         const settings = difficultySettings[currentDifficulty];
         const solvedTubes = tubes.filter(tube => tube.length === 0 || (tube.length === settings.balls && tube.every(ball => ball === tube[0])));
-        
         if (solvedTubes.length === settings.tubes) {
+            undoButton.disabled = true;
             movesDisplay.textContent = `Benötigte Züge: ${moveCount}`;
-            confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
-            setTimeout(() => { confetti({ particleCount: 70, angle: 60, spread: 55, origin: { x: 0 } }); }, 100);
-            setTimeout(() => { confetti({ particleCount: 70, angle: 120, spread: 55, origin: { x: 1 } }); }, 100);
+            clearInterval(confettiInterval);
+            confettiInterval = setInterval(fireRandomConfetti, 400);
             setTimeout(() => winOverlay.classList.add('show'), 500);
-            return true; // Gib zurück, dass das Spiel gewonnen wurde.
+            return true;
         }
-        return false; // Gib zurück, dass das Spiel noch nicht gewonnen ist.
+        return false;
     }
-    // =======================================================
 
+    function fireRandomConfetti() {
+        confetti({
+            particleCount: Math.floor(Math.random() * 50) + 50,
+            angle: Math.random() * 120 + 30,
+            spread: Math.random() * 50 + 50,
+            origin: { y: Math.random() * 0.2 + 0.7 }
+        });
+    }
 
-    // Event Listeners
+    function handleUndo() {
+        if (isAnimating || moveHistory.length === 0) return;
+        const lastMove = moveHistory.pop();
+        const ball = tubes[lastMove.to].pop();
+        tubes[lastMove.from].push(ball);
+        moveCount--;
+        renderBoard();
+        if (moveHistory.length === 0) undoButton.disabled = true;
+    }
+    
     restartButton.addEventListener('click', setupNewGame);
+    undoButton.addEventListener('click', handleUndo);
     difficultyContainer.addEventListener('click', (e) => {
         if (e.target.tagName === 'BUTTON' && !isAnimating) {
             currentDifficulty = e.target.dataset.difficulty;
@@ -242,8 +253,12 @@ document.addEventListener('DOMContentLoaded', () => {
             setupNewGame();
         }
     });
-    playAgainButton.addEventListener('click', setupNewGame);
+    playAgainButton.addEventListener('click', () => {
+        clearInterval(confettiInterval);
+        setupNewGame();
+    });
     deadlockRestartButton.addEventListener('click', () => {
+        clearInterval(confettiInterval);
         deadlockOverlay.classList.remove('show');
         setupNewGame();
     });
@@ -252,15 +267,5 @@ document.addEventListener('DOMContentLoaded', () => {
         setupNewGame();
     });
 
-    // Initialer Spielstart
     setupNewGame();
 });
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').then(registration => {
-            console.log('SW registered: ', registration);
-        }).catch(registrationError => {
-            console.log('SW registration failed: ', registrationError);
-        });
-    });
-}
