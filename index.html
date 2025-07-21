@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ball Sort Puzzle</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 </head>
 <body>
@@ -20,7 +19,10 @@
         <input type="checkbox" id="extreme-toggle">
     </div>
     <div id="game-board"></div>
-    <button id="restart-button">Neustart</button>
+    <div class="button-bar">
+        <button id="restart-button">Neustart</button>
+        <button id="undo-button" disabled>Rückgängig</button>
+    </div>
     <div id="win-overlay">
         <div class="win-box">
             <h1>Herzlichen Glückwunsch!</h1>
