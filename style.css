@@ -4,11 +4,19 @@ body {
     padding-top: 20px; padding-bottom: 20px;
 }
 #game-board {
-    display: flex; gap: 20px; padding: 80px 30px 30px 30px;
-    background-color: #1e1e1e; border-radius: 10px; margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 80px 30px 30px 30px;
+  background-color: #1e1e1e;
+  border-radius: 10px;
+  margin-top: 20px;
+  max-width: 100%;
 }
 .tube {
-    width: 60px; height: var(--tube-height, 240px); border: 3px solid #888;
+  width: 60px;
+  height: var(--tube-height, 240px);
+  border: 3px solid #888;
     border-top: none; border-radius: 0 0 30px 30px; display: flex;
     flex-direction: column-reverse; justify-content: flex-start;
     padding: 5px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
@@ -17,7 +25,9 @@ body {
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.7); transform: translateY(-5px);
 }
 .ball {
-    width: 50px; height: 50px; border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
     margin: 5px auto 0; box-shadow: inset -5px -5px 10px rgba(0,0,0,0.3);
     position: relative;
 }
@@ -101,4 +111,23 @@ body {
 @keyframes hue-shifter {
     from { filter: hue-rotate(0deg); }
     to { filter: hue-rotate(360deg); }
+}
+
+/* Responsive adjustments for mobile devices */
+@media (max-width: 600px) {
+  .tube {
+    width: 40px;
+  }
+  .ball {
+    width: 40px;
+    height: 40px;
+  }
+  #game-board {
+    padding: 40px 10px 10px 10px;
+    gap: 10px;
+  }
+  body {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
 }
